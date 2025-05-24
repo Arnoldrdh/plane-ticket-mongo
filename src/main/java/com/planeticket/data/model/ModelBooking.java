@@ -6,7 +6,6 @@ public class ModelBooking {
     @Id
     private String id;
 
-    private int bookingId;
     private String seatNumber;
     private String status;
     private String bookingTime;
@@ -17,14 +16,6 @@ public class ModelBooking {
 
     public String getId() {
         return this.id;
-    }
-
-    public int getBookingId() {
-        return this.bookingId;
-    }
-
-    public void setBookingId(int bookingId) {
-        this.bookingId = bookingId;
     }
 
     public String getSeatNumber() {

@@ -31,6 +31,9 @@ public class ControllerFlight {
         return rpFlight.findAll();
     }
 
+    // update penerbangan(soon)
+    // delete penerbangan(soon)
+
     // Cari berdasarkan kota asal dan tujuan
     // cari penerbangan berdasrkan kota asal dan tujuan
     @PostMapping("/city")
