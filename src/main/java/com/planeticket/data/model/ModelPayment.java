@@ -6,24 +6,23 @@ public class ModelPayment {
     @Id
     private String id;
 
-    private Integer paymentId;
+    private String bookingId;
+
     private String paymentMethod;
     private String paymentStatus;
     private String paymentTime;
     private double amount;
 
-    private Integer bookingId;
-
     public String getId() {
         return this.id;
     }
 
-    public Integer getPaymentId() {
-        return this.paymentId;
+    public String getBookingId() {
+        return this.bookingId;
     }
 
-    public void setPaymentId(Integer paymentId) {
-        this.paymentId = paymentId;
+    public void setBookingId(String bookingId) {
+        this.bookingId = bookingId;
     }
 
     public String getPaymentMethod() {
@@ -56,14 +55,6 @@ public class ModelPayment {
 
     public void setAmount(double amount) {
         this.amount = amount;
-    }
-
-    public Integer getBookingId() {
-        return this.bookingId;
-    }
-
-    public void setBookingId(Integer bookingId) {
-        this.bookingId = bookingId;
     }
 
 }
