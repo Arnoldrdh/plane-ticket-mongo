@@ -112,7 +112,7 @@ public class ControllerBooking {
         return rpBooking.findByUserId(userId);
     }
 
-    // ❌ Hapus booking (pastikan payment sudah dihapus dulu)
+    // Hapus booking (pastikan payment sudah dihapus dulu)
     @DeleteMapping("/delete/{bookingId}")
     public boolean deleteBookingHistory(@PathVariable String bookingId) {
         if (rpBooking.existsById(bookingId)) {

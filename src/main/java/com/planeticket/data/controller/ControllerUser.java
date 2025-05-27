@@ -22,8 +22,7 @@ public class ControllerUser {
     // register
     @PostMapping("/register")
     public boolean addUser(@RequestBody ModelUser user) {
-        ModelUser existingUser = rpUser.findByEmailAndUsername(user.getEmail(), user.getUsername());
-        if (existingUser != null) {
+        if (rpUser.existsByUsernameAndEmail(user.getUsername(), user.getEmail())) {
             return false;
         }
 

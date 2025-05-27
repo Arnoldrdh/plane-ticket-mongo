@@ -10,4 +10,6 @@ public interface RepositoryUser extends MongoRepository<ModelUser, String> {
     ModelUser findByEmailAndUsername(String email, String username);
 
     ModelUser findByEmail(String email);
+
+    boolean existsByUsernameAndEmail(String username, String email);
 }
