@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.planeticket.data.dto.UserSummaryDTO;
 import com.planeticket.data.model.ModelUser;
 import com.planeticket.data.repository.RepositoryUser;
 
@@ -40,14 +41,20 @@ public class ControllerUser {
 
     // profile user
     @GetMapping("/profile/{email}")
-    public Object userProfile(@PathVariable String email) {
+    public UserSummaryDTO userProfile(@PathVariable String email) {
         try {
             ModelUser userProfile = rpUser.findByEmail(email);
-            if (userProfile != null) {
-                return userProfile;
+            if (userProfile == null) {
+                return null;
             }
 
-            return null;
+            UserSummaryDTO dto = new UserSummaryDTO();
+            dto.setUsername(userProfile.getUsername());
+            dto.setEmail(userProfile.getEmail());
+            dto.setPhoneNumber(userProfile.getPhoneNumber());
+
+            return dto;
+
         } catch (Exception e) {
             System.out.println("Error nya: " + e);
             return null;

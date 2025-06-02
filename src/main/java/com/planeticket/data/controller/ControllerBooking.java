@@ -13,7 +13,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.planeticket.data.dto.BookingResponseDTO;
+import com.planeticket.data.dto.FlightSummaryDTO;
 import com.planeticket.data.dto.RequestBooking;
+import com.planeticket.data.dto.UserSummaryDTO;
 import com.planeticket.data.model.ModelBooking;
 import com.planeticket.data.model.ModelFlight;
 import com.planeticket.data.model.ModelUser;
@@ -34,7 +37,7 @@ public class ControllerBooking {
     private RepositoryUser rpUser;
 
     @PostMapping("/create")
-    public ModelBooking createBooking(@RequestBody RequestBooking reqBooking) {
+    public BookingResponseDTO createBooking(@RequestBody RequestBooking reqBooking) {
         try {
 
             // ambil data penerbangan dan user
@@ -65,7 +68,31 @@ public class ControllerBooking {
             flightData.setAvailableSeats(flightData.getAvailableSeats() - 1);
             rpFlight.save(flightData);
 
-            return rpBooking.save(booking);
+            ModelBooking savedBooking = rpBooking.save(booking);
+
+            // Build response DTO
+            BookingResponseDTO response = new BookingResponseDTO();
+            response.setSeatNumber(savedBooking.getSeatNumber());
+            response.setStatus(savedBooking.getStatus());
+            response.setPrice(flightData.getPrice());
+            response.setBookingTime(savedBooking.getBookingTime());
+            response.setPaymentStatus(savedBooking.getPaymentStatus());
+
+            // Set user
+            UserSummaryDTO userDTO = new UserSummaryDTO();
+            userDTO.setUsername(userData.getUsername());
+            userDTO.setEmail(userData.getEmail());
+            userDTO.setPhoneNumber(userData.getPhoneNumber());
+            response.setUser(userDTO);
+
+            // Set flight
+            FlightSummaryDTO flightDTO = new FlightSummaryDTO();
+            flightDTO.setFlightNumber(flightData.getFlightNumber());
+            flightDTO.setDeparture(flightData.getDeparture());
+            flightDTO.setDestination(flightData.getDestination());
+            response.setFlight(flightDTO);
+
+            return response;
 
         } catch (Exception e) {
             System.out.println("error msg: " + e);
