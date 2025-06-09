@@ -1,6 +1,5 @@
 package com.planeticket.data.controller;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,139 +13,50 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.planeticket.data.dto.BookingResponseDTO;
-import com.planeticket.data.dto.FlightSummaryDTO;
 import com.planeticket.data.dto.RequestBooking;
-import com.planeticket.data.dto.UserSummaryDTO;
 import com.planeticket.data.model.ModelBooking;
-import com.planeticket.data.model.ModelFlight;
-import com.planeticket.data.model.ModelUser;
 import com.planeticket.data.repository.RepositoryBooking;
-import com.planeticket.data.repository.RepositoryFlight;
-import com.planeticket.data.repository.RepositoryUser;
+import com.planeticket.data.service.ServiceBooking;
 
 @RestController
 @RequestMapping("/api/booking")
 public class ControllerBooking {
     @Autowired
+    private ServiceBooking srBooking;
+
+    @Autowired
     private RepositoryBooking rpBooking;
-
-    @Autowired
-    private RepositoryFlight rpFlight;
-
-    @Autowired
-    private RepositoryUser rpUser;
 
     @PostMapping("/create")
     public BookingResponseDTO createBooking(@RequestBody RequestBooking reqBooking) {
-        try {
 
-            // ambil data penerbangan dan user
-            ModelFlight flightData = rpFlight.findById(reqBooking.getFlightId()).orElse(null);
-            ModelUser userData = rpUser.findById(reqBooking.getUserId()).orElse(null);
-
-            // Validasi ketersediaan flight & user
-            if (flightData == null || userData == null) {
-                throw new RuntimeException("Flight or User not found");
-            }
-
-            // cek kursi ada atau tidal
-            if (flightData.getAvailableSeats() <= 0) {
-                throw new RuntimeException("kursi habis");
-
-            }
-
-            // Buat data booking baru
-            ModelBooking booking = new ModelBooking();
-            booking.setFlightId(flightData.getId());
-            booking.setUserId(userData.getId());
-            booking.setSeatNumber(reqBooking.getSeatNumber());
-            booking.setStatus("Booked");
-            booking.setPaymentStatus("Unpaid");
-            booking.setBookingTime(LocalDateTime.now().toString());
-
-            // Update seat di flight
-            flightData.setAvailableSeats(flightData.getAvailableSeats() - 1);
-            rpFlight.save(flightData);
-
-            ModelBooking savedBooking = rpBooking.save(booking);
-
-            // Build response DTO
-            BookingResponseDTO response = new BookingResponseDTO();
-            response.setSeatNumber(savedBooking.getSeatNumber());
-            response.setStatus(savedBooking.getStatus());
-            response.setPrice(flightData.getPrice());
-            response.setBookingTime(savedBooking.getBookingTime());
-            response.setPaymentStatus(savedBooking.getPaymentStatus());
-
-            // Set user
-            UserSummaryDTO userDTO = new UserSummaryDTO();
-            userDTO.setUsername(userData.getUsername());
-            userDTO.setEmail(userData.getEmail());
-            userDTO.setPhoneNumber(userData.getPhoneNumber());
-            response.setUser(userDTO);
-
-            // Set flight
-            FlightSummaryDTO flightDTO = new FlightSummaryDTO();
-            flightDTO.setFlightNumber(flightData.getFlightNumber());
-            flightDTO.setDeparture(flightData.getDeparture());
-            flightDTO.setDestination(flightData.getDestination());
-            response.setFlight(flightDTO);
-
-            return response;
-
-        } catch (Exception e) {
-            System.out.println("error msg: " + e);
-        }
-
-        return null;
+        return srBooking.createBooking(reqBooking);
     }
 
     // update jadi cancel
     @PutMapping("/cancel/{bookingId}")
     public boolean cancelBooking(@PathVariable String bookingId) {
-        ModelBooking booking = rpBooking.findById(bookingId).orElse(null);
-        if (booking == null) {
-            return false;
-        }
 
-        if (!"Canceled".equalsIgnoreCase(booking.getStatus())) {
-            booking.setStatus("Canceled");
-            rpBooking.save(booking);
-
-            ModelFlight flight = rpFlight.findById(booking.getFlightId()).orElse(null);
-            if (flight != null) {
-                flight.setAvailableSeats(flight.getAvailableSeats() + 1);
-                rpFlight.save(flight);
-            }
-
-            return true;
-
-        }
-
-        return false;
+        return srBooking.cancelBooking(bookingId);
 
     }
 
-    // 🔍 Detail tiket berdasarkan ID booking
+    // Detail tiket berdasarkan ID booking
     @GetMapping("/detail/{bookingId}")
     public ModelBooking detailBooking(@PathVariable String bookingId) {
-        return rpBooking.findById(bookingId).orElse(null);
+        return srBooking.detailBooking(bookingId);
     }
 
-    // 📜 History pemesanan berdasarkan userId
+    // History pemesanan berdasarkan userId
     @GetMapping("/history/user/{userId}")
     public List<ModelBooking> historyBookingUser(@PathVariable String userId) {
         return rpBooking.findByUserId(userId);
     }
 
-    // ❌ Hapus booking (pastikan payment sudah dihapus dulu)
+    // Hapus booking (pastikan payment sudah dihapus dulu)
     @DeleteMapping("/delete/{bookingId}")
     public boolean deleteBookingHistory(@PathVariable String bookingId) {
-        if (rpBooking.existsById(bookingId)) {
-            rpBooking.deleteById(bookingId);
-            return true;
-        }
-        return false;
+        return srBooking.deleteBookingHistory(bookingId);
     }
 
 }

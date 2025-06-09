@@ -21,14 +21,12 @@ public class ControllerFlight {
     // add penerbangan
     @PostMapping("/add")
     public boolean addFlight(@RequestBody List<ModelFlight> flights) {
-        // rpFlight.saveAll(flights);
         return srFlight.addFlight(flights);
     }
 
     // Daftar semua penerbangan
     @GetMapping("/all")
     public List<ModelFlight> getAllFlights() {
-        // return rpFlight.findAll();
         return srFlight.getAllFlights();
     }
 
